@@ -135,4 +135,98 @@ router.get('/isUserHaveBooking/:userid', async (req, res) => {
     }
 });
 
+router.get('/getRoomTypePopularity', async (req, res) => {
+    try {
+      const pipeline = [
+        {
+          $group: {
+            _id: {
+              $month: {
+                $dateFromString: {
+                  dateString: "$fromdate",
+                  format: "%d-%m-%Y"
+                }
+              }
+            },
+            roomTypePopularity: {
+              $push: "$roomtype"
+            }
+          }
+        },
+        {
+          $project: {
+            month: "$_id",
+            roomTypePopularity: 1
+          }
+        }
+      ];
+  
+      const roomTypePopularity = await bookingModel.aggregate(pipeline);
+  
+      res.send(roomTypePopularity);
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
+  });
+
+  router.get("/getBookingTimeDistribution", async (req, res) => {
+    try {
+      const result = await bookingModel.aggregate([
+        {
+          $project: {
+            hour: { $hour: { $toDate: "$createdAt" } }
+          }
+        },
+        {
+          $addFields: {
+            hourSlot: {
+              $concat: [
+                {
+                  $switch: {
+                    branches: [
+                      { case: { $lt: ["$hour", 4] }, then: "00:00-04:00" },
+                      { case: { $lt: ["$hour", 8] }, then: "04:00-08:00" },
+                      { case: { $lt: ["$hour", 12] }, then: "08:00-12:00" },
+                      { case: { $lt: ["$hour", 16] }, then: "12:00-16:00" },
+                      { case: { $lt: ["$hour", 20] }, then: "16:00-20:00" },
+                      { case: { $lt: ["$hour", 24] }, then: "20:00-00:00" }
+                    ],
+                    default: "Unknown"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$hourSlot",
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+  
+      // Generate time ranges from 0:00 to 24:00
+      const timeRanges = [
+        "00:00-04:00",
+        "04:00-08:00",
+        "08:00-12:00",
+        "12:00-16:00",
+        "16:00-20:00",
+        "20:00-00:00"
+      ];
+  
+      // Match the counts for each time range
+      const bookingTimeDistribution = timeRanges.map((range) => {
+        const count = result.find((r) => r._id === range)?.count || 0;
+        return { range, count };
+      });
+  
+      return res.send(bookingTimeDistribution);
+    } catch (err) {
+      return res.status(400).send({ error: err });
+    }
+  });
+  
+
 module.exports = router;

@@ -170,6 +170,114 @@ router.get("/getPaymentMethodPopularity", async (req, res) => {
         return res.status(400).send({ error: err });
     }
 });
+
+router.get("/getTotalAmountByEachMonth", async (req, res) => {
+    try {
+        const transaction = await transactionModel.find();
+        var jan = 0;
+        var feb = 0;
+        var mar = 0;
+        var apr = 0;
+        var may = 0;
+        var jun = 0;
+        var jul = 0;
+        var aug = 0;
+        var sep = 0;
+        var oct = 0;
+        var nov = 0;
+        var dec = 0;
+        for (var i = 0; i < transaction.length; i++) {
+            if (transaction[i].createdAt.getMonth() === 0) {
+                jan += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 1) {
+                feb += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 2) {
+                mar += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 3) {
+                apr += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 4) {
+                may += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 5) {
+                jun += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 6) {
+                jul += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 7) {
+                aug += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 8) {
+                sep += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 9) {
+                oct += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 10) {
+                nov += transaction[i].amount;
+            }
+            if (transaction[i].createdAt.getMonth() === 11) {
+                dec += transaction[i].amount;
+            }
+        }
+        return res.send({
+            January: jan,
+            February: feb,
+            March: mar,
+            April: apr,
+            May: may,
+            June: jun,
+            July: jul,
+            August: aug,
+            September: sep,
+            October: oct,
+            November: nov,
+            December: dec
+        });
+    } catch (err) {
+        return res.status(400).send({ error: err });
+    }
+});
+
+router.get("/getAverageIncomeByMonth", async (req, res) => {
+    try {
+        const currentYear = new Date().getFullYear();
+
+        const result = await transactionModel.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(currentYear, 0, 1), // Start of the current year
+                        $lte: new Date(currentYear, 11, 31) // End of the current year
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$amount" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    averageIncome: { $divide: ["$totalAmount", 12] }
+                }
+            }
+        ]);
+
+        return res.send(result);
+    } catch (err) {
+        return res.status(400).send({ error: err });
+    }
+});
+
+
+
         
 
 module.exports = router;
