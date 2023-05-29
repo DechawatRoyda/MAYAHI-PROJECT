@@ -10,7 +10,7 @@ function Landingscreen() {
         <div className=' text-center' style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
         <Navbar />
         <div className='mg' >
-            <h1 className=' T-gradient' style={{fontSize:'130px'}}>Mayahi</h1>
+            <h1 className=' T-gradient' style={{fontSize:'280px'}}>Mayahi</h1>
             <h3 style={{color:"white"}}>Book unique places to stay and things to do.</h3>
             <h3 style={{color:"white"}}>WHEREVER YOU ARE.</h3>
             <Link to='/home' className='btn landingbtn btn-primary'>Explore</Link>
