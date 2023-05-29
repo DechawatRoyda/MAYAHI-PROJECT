@@ -280,7 +280,7 @@ function Boardgamescreen() {
                                     <hr />
                                     <div className="d-flex flex-row" style={{ float: 'right' }}>
                                         <button className="button1" onClick={() => decrementCount(index)}>-</button>
-                                        <p className='ml-2 mr-2 mt-2'>{boardgame.count}</p>
+                                        <p className='ml-2 mr-2 mt-3'>{boardgame.count}</p>
                                         <button className="button1" onClick={() => incrementCount(index)}>+</button>
                                     </div>
                                 </div>
